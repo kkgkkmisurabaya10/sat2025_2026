@@ -131,7 +131,10 @@
 </div>
 
 <script>
+    // ==========================================
+    // PASTIKAN MENGGUNAKAN URL DEPLOYMENT BARU SETELAH MEMPERBAIKI EXECUTE AS ME
     const API_URL = 'https://script.google.com/macros/s/AKfycbzJ4Sq2v8ajxBlAcUzGakBBmkfApOmj5eUC4tGwGpPdAZWTEEJekA3bkqMPHZWQYpQ41w/exec';
+    // ==========================================
 
     let userSession = JSON.parse(localStorage.getItem('sat_session')) || null;
     let savedEmail = localStorage.getItem('user_email_soal') || null;
@@ -159,8 +162,12 @@
     function showDashboardView() { document.getElementById('loginView').classList.add('hidden'); document.getElementById('dashboardView').classList.remove('hidden'); }
 
     async function callAPI(payload) {
-        const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload), headers: { 'Content-Type': 'text/plain;charset=utf-8' } });
-        return await res.json();
+        try {
+            const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload), headers: { 'Content-Type': 'text/plain;charset=utf-8' } });
+            return await res.json();
+        } catch (error) {
+            return { success: false, message: 'Koneksi ke server gagal. Periksa URL API atau koneksi internet Anda.' };
+        }
     }
 
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
@@ -211,6 +218,8 @@
                 </tr>`;
             });
             document.getElementById('dataTableBody').innerHTML = html;
+        } else {
+            document.getElementById('dataTableBody').innerHTML = `<tr><td colspan="6" class="text-center text-danger">${req.message}</td></tr>`;
         }
     }
 
@@ -219,6 +228,7 @@
             if (res.isConfirmed) {
                 let req = await callAPI({ action: 'delete', id_arsip: id });
                 if(req.success) { Swal.fire('Dihapus', req.message, 'success'); fetchData(); }
+                else { Swal.fire('Gagal', req.message, 'error'); }
             }
         });
     }
@@ -227,27 +237,45 @@
 
     document.getElementById('uploadForm').addEventListener('submit', async (e) => {
         e.preventDefault();
+
+        let fileKisiNode = document.getElementById('fileKisi');
+        let fileSoalNode = document.getElementById('fileSoal');
+        let fileKunciNode = document.getElementById('fileKunci');
+
+        if (fileKisiNode.files.length === 0 && fileSoalNode.files.length === 0 && fileKunciNode.files.length === 0) {
+            Swal.fire('Peringatan', 'Anda harus melampirkan minimal 1 file.', 'warning');
+            return;
+        }
+
         const btn = document.getElementById('btnUpload');
         btn.disabled = true; btn.innerHTML = 'Mengirim...';
         Swal.fire({ title: 'Mengunggah...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() }});
 
         try {
             let p = {
-                action: 'upload', email: document.getElementById('email').value, nama: document.getElementById('nama').value,
-                kelas: document.getElementById('kelas').value, mata_pelajaran: document.getElementById('mapel').value,
-                file_kisi: document.getElementById('fileKisi').files[0] ? await getBase64(document.getElementById('fileKisi').files[0]) : null,
-                file_soal: document.getElementById('fileSoal').files[0] ? await getBase64(document.getElementById('fileSoal').files[0]) : null,
-                file_kunci: document.getElementById('fileKunci').files[0] ? await getBase64(document.getElementById('fileKunci').files[0]) : null
+                action: 'upload', 
+                email: document.getElementById('email').value, 
+                nama: document.getElementById('nama').value,
+                kelas: document.getElementById('kelas').value, 
+                mata_pelajaran: document.getElementById('mapel').value,
+                file_kisi: fileKisiNode.files[0] ? await getBase64(fileKisiNode.files[0]) : null,
+                file_soal: fileSoalNode.files[0] ? await getBase64(fileSoalNode.files[0]) : null,
+                file_kunci: fileKunciNode.files[0] ? await getBase64(fileKunciNode.files[0]) : null
             };
             let req = await callAPI(p);
+            
             if(req.success) {
                 Swal.fire('Sukses', req.message, 'success');
                 localStorage.setItem('user_email_soal', p.email);
                 document.getElementById('uploadForm').reset();
                 init();
+            } else {
+                Swal.fire('Gagal Upload', req.message, 'error');
             }
-        } catch (err) { Swal.fire('Error', 'Gagal upload', 'error'); }
-        btn.disabled = false; btn.innerHTML = 'Kirim Berkas SAT';
+        } catch (err) { 
+            Swal.fire('Error', 'Terjadi kesalahan sistem saat mengunggah.', 'error'); 
+        }
+        btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Kirim Berkas SAT';
     });
 
     window.onload = init;
