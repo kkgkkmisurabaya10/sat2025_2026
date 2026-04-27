@@ -71,12 +71,12 @@
                         <input type="file" id="fileKisi" class="form-control" accept=".xlsx, .xls">
                     </div>
                     <div class="col-md-3 mb-3">
-                        <label>Soal (PDF)</label>
-                        <input type="file" id="fileSoal" class="form-control" accept=".pdf">
+                        <label>Soal (Word/PDF)</label>
+                        <input type="file" id="fileSoal" class="form-control" accept=".pdf, .doc, .docx">
                     </div>
                     <div class="col-md-3 mb-3">
-                        <label>Kunci (PDF)</label>
-                        <input type="file" id="fileKunci" class="form-control" accept=".pdf">
+                        <label>Kunci (Word/PDF)</label>
+                        <input type="file" id="fileKunci" class="form-control" accept=".pdf, .doc, .docx">
                     </div>
                 </div>
                 <button type="submit" class="btn btn-success w-100" id="btnUpload">
@@ -195,9 +195,9 @@
             req.data.forEach(row => {
                 let btns = `
                     <div class="btn-group">
-                        ${row.kisi_url ? `<a href="${row.kisi_url}" target="_blank" class="btn btn-sm btn-outline-success"><i class="fas fa-file-excel"></i></a>` : ''}
-                        ${row.soal_url ? `<a href="${row.soal_url}" target="_blank" class="btn btn-sm btn-outline-danger"><i class="fas fa-file-pdf"></i></a>` : ''}
-                        ${row.kunci_url ? `<a href="${row.kunci_url}" target="_blank" class="btn btn-sm btn-outline-primary"><i class="fas fa-key"></i></a>` : ''}
+                        ${row.kisi_url ? `<a href="${row.kisi_url}" target="_blank" class="btn btn-sm btn-outline-success" title="Kisi-kisi"><i class="fas fa-file-excel"></i></a>` : ''}
+                        ${row.soal_url ? `<a href="${row.soal_url}" target="_blank" class="btn btn-sm btn-outline-danger" title="Soal"><i class="fas fa-file-pdf"></i></a>` : ''}
+                        ${row.kunci_url ? `<a href="${row.kunci_url}" target="_blank" class="btn btn-sm btn-outline-primary" title="Kunci"><i class="fas fa-key"></i></a>` : ''}
                     </div>`;
                 html += `<tr>
                     <td><small>${row.waktu}</small></td>
