@@ -146,7 +146,14 @@
             document.getElementById('btnNavAdmin').classList.add('hidden');
             document.getElementById('btnNavLogout').classList.remove('hidden');
             banner.classList.remove('hidden');
-            banner.innerHTML = `<strong>Mode ${userSession.role.replace('_',' ').toUpperCase()} Aktif</strong> - Menampilkan data Kelas ${userSession.kelas_ampu}`;
+            
+            // Penyesuaian teks banner berdasarkan tipe koordinator
+            let cakupanInfo = `Kelas ${userSession.kelas_ampu}`;
+            if(userSession.role === 'koordinator_mapel') cakupanInfo = `Mata Pelajaran: ${userSession.kelas_ampu}`;
+            if(userSession.role === 'koordinator_pai_fase') cakupanInfo = `PAI Fase ${userSession.kelas_ampu}`;
+            if(userSession.role === 'admin') cakupanInfo = `Semua Data`;
+
+            banner.innerHTML = `<strong>Mode ${userSession.role.replace(/_/g,' ').toUpperCase()} Aktif</strong> - Menampilkan data ${cakupanInfo}`;
             fetchData(); 
         } else {
             document.getElementById('btnNavAdmin').classList.remove('hidden');
@@ -168,7 +175,6 @@
         }
     }
 
-    // Listener Real-time Email Render
     document.getElementById('email').addEventListener('input', function() {
         clearTimeout(typingTimer);
         let emailValue = this.value.trim();
@@ -191,6 +197,7 @@
             localStorage.setItem('sat_session', JSON.stringify(req.data));
             userSession = req.data;
             Swal.fire('Berhasil', req.message, 'success');
+            document.getElementById('loginForm').reset();
             init(); 
         } else { Swal.fire('Gagal', req.message, 'error'); }
     });
