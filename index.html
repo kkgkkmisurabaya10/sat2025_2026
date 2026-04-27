@@ -103,7 +103,7 @@
                     </tr>
                 </thead>
                 <tbody id="dataTableBody">
-                    <tr><td colspan="6" class="text-center">Memuat data...</td></tr>
+                    <tr><td colspan="6" class="text-center">Silakan masukkan email untuk melihat data.</td></tr>
                 </tbody>
             </table>
         </div>
@@ -135,6 +135,7 @@
 
     let userSession = JSON.parse(localStorage.getItem('sat_session')) || null;
     let savedEmail = localStorage.getItem('user_email_soal') || null;
+    let typingTimer;
 
     function init() {
         showDashboardView();
@@ -167,6 +168,21 @@
         }
     }
 
+    // Listener Real-time Email Render
+    document.getElementById('email').addEventListener('input', function() {
+        clearTimeout(typingTimer);
+        let emailValue = this.value.trim();
+        
+        if (emailValue.includes('@') && emailValue.includes('.')) {
+            document.getElementById('dataTableBody').innerHTML = '<tr><td colspan="6" class="text-center"><i class="fas fa-spinner fa-spin"></i> Memuat data...</td></tr>';
+            typingTimer = setTimeout(() => {
+                fetchData();
+            }, 800); 
+        } else if (emailValue === '') {
+            document.getElementById('dataTableBody').innerHTML = '<tr><td colspan="6" class="text-center">Silakan masukkan email untuk melihat data.</td></tr>';
+        }
+    });
+
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         Swal.fire({ title: 'Otentikasi...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() }});
@@ -182,13 +198,14 @@
     function logoutAdmin() { localStorage.removeItem('sat_session'); userSession = null; init(); }
 
     async function fetchData() {
-        document.getElementById('dataTableBody').innerHTML = '<tr><td colspan="6" class="text-center">Memuat data...</td></tr>';
         let payload = { action: 'get_data' };
         if(userSession) {
             payload.role = userSession.role;
             payload.kelas_ampu = userSession.kelas_ampu;
         } else {
-            payload.email = document.getElementById('email').value;
+            let currentEmail = document.getElementById('email').value.trim();
+            if (!currentEmail) return; 
+            payload.email = currentEmail;
             payload.role = 'user';
         }
         
@@ -210,7 +227,7 @@
                     <td>${row.mata_pelajaran}</td>
                     <td class="text-center">${btns}</td>
                     <td class="text-center">
-                        ${(userSession && userSession.role === 'admin') || (savedEmail && row.email === savedEmail) ? `<button onclick="deleteData('${row.id_arsip}')" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>` : '-'}
+                        ${(userSession && userSession.role === 'admin') || (document.getElementById('email').value.trim() && row.email === document.getElementById('email').value.trim()) ? `<button onclick="deleteData('${row.id_arsip}')" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>` : '-'}
                     </td>
                 </tr>`;
             });
@@ -245,7 +262,7 @@
         }
 
         const btn = document.getElementById('btnUpload');
-        btn.disabled = true; btn.innerHTML = 'Mengirim...';
+        btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
         Swal.fire({ title: 'Mengunggah...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() }});
 
         try {
@@ -264,8 +281,13 @@
             if(req.success) {
                 Swal.fire('Sukses', req.message, 'success');
                 localStorage.setItem('user_email_soal', p.email);
-                document.getElementById('uploadForm').reset();
-                init();
+                
+                fileKisiNode.value = '';
+                fileSoalNode.value = '';
+                fileKunciNode.value = '';
+                document.getElementById('mapel').value = '';
+                
+                fetchData();
             } else {
                 Swal.fire('Gagal Upload', req.message, 'error');
             }
