@@ -29,7 +29,7 @@
 
 <div id="dashboardView" class="container pb-5">
     <div class="text-center mb-4">
-        <img src="https://lh3.googleusercontent.com/d/17PFUvnIUrEjXgMJkiAA0D1pejOgJkKfS" alt="Logo" class="logo-img" onerror="this.src='https://via.placeholder.com/80?text=SAT'">
+        <img src="https://drive.google.com/uc?export=view&id=ID_GAMBAR_DRIVE_ANDA" alt="Logo" class="logo-img" onerror="this.src='https://via.placeholder.com/80?text=SAT'">
         <h3>Bank Soal SAT Kelas 1-5</h3>
         <p class="text-muted">KKMI Surabaya 10 - Tahun Pelajaran 2025/2026</p>
     </div>
@@ -67,8 +67,8 @@
                         <input type="text" id="mapel" class="form-control" placeholder="Cth: Akidah Akhlak" required>
                     </div>
                     <div class="col-md-3 mb-3">
-                        <label>Kisi-kisi (Word)</label>
-                        <input type="file" id="fileKisi" class="form-control" accept=".docx, .doc">
+                        <label>Kisi-kisi (Excel)</label>
+                        <input type="file" id="fileKisi" class="form-control" accept=".xlsx, .xls">
                     </div>
                     <div class="col-md-3 mb-3">
                         <label>Soal (PDF)</label>
@@ -131,7 +131,7 @@
 </div>
 
 <script>
-    const API_URL = 'https://script.google.com/macros/s/AKfycbyPsRgLPtMrqFW4ee3-zdZWLpST-ayj8UcilAntyYkq0KDan2tcr739ZupZMk3PzCxaKg/exec';
+    const API_URL = 'https://script.google.com/macros/s/AKfycbwfuMfbdzhnHVyWbr0-Mg4xZ_FZLSyf1V-OIA_P2gcMHllvA6eOsWxFjxD3WWVW1NrT0A/exec';
 
     let userSession = JSON.parse(localStorage.getItem('sat_session')) || null;
     let savedEmail = localStorage.getItem('user_email_soal') || null;
@@ -195,9 +195,9 @@
             req.data.forEach(row => {
                 let btns = `
                     <div class="btn-group">
-                        ${row.kisi_url ? `<a href="${row.kisi_url}" target="_blank" class="btn btn-sm btn-outline-primary"><i class="fas fa-file-word"></i></a>` : ''}
+                        ${row.kisi_url ? `<a href="${row.kisi_url}" target="_blank" class="btn btn-sm btn-outline-success"><i class="fas fa-file-excel"></i></a>` : ''}
                         ${row.soal_url ? `<a href="${row.soal_url}" target="_blank" class="btn btn-sm btn-outline-danger"><i class="fas fa-file-pdf"></i></a>` : ''}
-                        ${row.kunci_url ? `<a href="${row.kunci_url}" target="_blank" class="btn btn-sm btn-outline-success"><i class="fas fa-key"></i></a>` : ''}
+                        ${row.kunci_url ? `<a href="${row.kunci_url}" target="_blank" class="btn btn-sm btn-outline-primary"><i class="fas fa-key"></i></a>` : ''}
                     </div>`;
                 html += `<tr>
                     <td><small>${row.waktu}</small></td>
